@@ -8,9 +8,17 @@ ALG_OBJ = $(patsubst %.cpp, %.o, $(ALG_CPP))
 OBJ = main.o program.o chart.o $(ALG_OBJ)
 BIN = sorting-visualizer.out
 
-.PHONY: all clean
+.PHONY: all check clean
 
 all: $(BIN)
+
+check: $(BIN)
+	./$(BIN)
+
+clean:
+	-rm *.o
+	-rm alg/*.o
+	-rm $(BIN)
 
 alg/sort.o: alg/sort.cpp alg/sort.hpp
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -29,8 +37,3 @@ main.o: main.cpp program.o
 
 $(BIN): $(OBJ)
 	$(CC) $(CFLAGS) $(LFLAGS) $(OBJ) -o $@
-
-clean:
-	-rm *.o
-	-rm alg/*.o
-	-rm $(BIN)
