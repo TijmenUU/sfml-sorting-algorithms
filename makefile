@@ -1,39 +1,42 @@
-CC     = g++
-CFLAGS = -std=c++17 -O2
-LFLAGS = -lsfml-graphics -lsfml-window -lsfml-system
+CC      = clang++
+CFLAGS  = -std=c++23 -Wall -Wextra -O2
+LFLAGS  = -lsfml-graphics -lsfml-window -lsfml-system
 
-ALG_CPP = $(wildcard ./alg/*.cpp)
-ALG_OBJ = $(patsubst %.cpp, %.o, $(ALG_CPP))
+BINARY  = bin/sorting-visualizer.out
+SRC_DIR = src
 
-OBJ = main.o program.o chart.o $(ALG_OBJ)
-BIN = sorting-visualizer.out
+CPPS = $(shell find $(SRC_DIR) -name *.cpp)
+OBJS = $(patsubst %.cpp, %.o, $(CPPS))
+# Gcc/Clang will create these .d files containing dependencies.
+DEPS = $(patsubst %.cpp, %.d, $(CPPS))
 
-.PHONY: all check clean
+.PHONY: all check syntax clean format
 
-all: $(BIN)
+all: $(BINARY)
 
-check: $(BIN)
-	./$(BIN)
+check: $(BINARY)
+	cd bin && ./sorting-visualizer.out
 
+syntax: $(CPPS)
+	$(CC) -fsyntax-only $(CPPS)
+	
 clean:
-	-rm *.o
-	-rm alg/*.o
-	-rm $(BIN)
+	-rm $(OBJS)
+	-rm $(DEPS)
+	-rm $(BINARY)
 
-alg/sort.o: alg/sort.cpp alg/sort.hpp
-	$(CC) $(CFLAGS) -c $< -o $@
+format:
+	clang-format -i ${CPPS}
+	clang-format -i $(shell find ${SRC_DIR} -name '*.hpp')
 
-alg/%.o: alg/%.cpp alg/%.hpp alg/sort.o
-	$(CC) $(CFLAGS) -c $< -o $@
+-include $(DEPS)
 
-chart.o: chart.cpp chart.cpp $(ALG_OBJ)
-	$(CC) $(CFLAGS) -c $< -o $@
+%.o: %.cpp
+	$(CC) $(CFLAGS) -MMD -c $< -o $@
 
-program.o: program.cpp program.hpp chart.o
-	$(CC) $(CFLAGS) -c $< -o $@
-
-main.o: main.cpp program.o
-	$(CC) $(CFLAGS) -c $< -o $@
-
-$(BIN): $(OBJ)
-	$(CC) $(CFLAGS) $(LFLAGS) $(OBJ) -o $@
+# Actual target of the binary - depends on all .o files.
+# The @D you're seeing here and elsewhere simply means the directory of the file
+# we're making.
+$(BINARY): $(OBJS)
+	mkdir -p $(@D)
+	$(CC) $(CFLAGS) $(OBJS) $(LFLAGS) -o $(BINARY)

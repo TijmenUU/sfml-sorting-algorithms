@@ -23,9 +23,9 @@ Sorting algorithms visualized with the help of SFML.
 Currently only tested on Linux, but there are no dependencies that should make
 this incompatible with a Windows system or any other OS that has SFML.
 
-- SFML (2.5.0)
+- SFML (3.x)
 - make
-- g++/clang++ (C++17 preferred, minimally C++14, see the `makefile`)
+- g++/clang++ (C++23 or better support, see the `makefile`)
 
 ## Style
 The code has been formatted using `clang-format`. Hence it may look a little odd
